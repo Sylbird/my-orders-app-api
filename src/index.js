@@ -124,7 +124,7 @@ app.get('/order_products', async (req, res) => {
   }
 });
 
-// Add product to an order
+// Add product to a new order
 app.post('/order_products', async (req, res) => {
   const { order_id, product_id, quantity } = req.body;
   if (!order_id || !product_id || !quantity) return res.status(400).json({ message: 'Missing required fields' });
@@ -141,6 +141,28 @@ app.post('/order_products', async (req, res) => {
     res.status(201).json({ order_id, product_id, quantity, total_price });
   } catch (error) {
     console.error('Error in POST /order_products:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Update an order product
+app.put('/order_products', async (req, res) => {
+  const { order_id, product_id, quantity } = req.body;
+  if (!order_id || !product_id || !quantity) return res.status(400).json({ message: 'Missing required fields' });
+  try {
+    const connection = await mysql.createConnection(dbConfig);
+    const [product] = await connection.execute('SELECT unit_price FROM products WHERE id = ?', [product_id]);
+    if (product.length === 0) return res.status(404).json({ message: 'Product not found' });
+    const total_price = product[0].unit_price * quantity;
+    const [result] = await connection.execute(
+      'UPDATE order_products SET quantity = ?, total_price = ? WHERE order_id = ? AND product_id = ?',
+      [quantity, total_price, order_id, product_id]
+    );
+    await connection.end();
+    if (result.affectedRows === 0) return res.status(404).json({ message: 'Order product not found' });
+    res.json({ order_id, product_id, quantity, total_price });
+  } catch (error) {
+    console.error('Error in PUT /order_products:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
