@@ -15,6 +15,10 @@ const dbConfig = {
   database: process.env.DB_NAME
 };
 
+app.get('/', async (req, res) => {
+  res.send('<h1>Api For Order Management</h1><p>You are in the root path</p>');  
+});
+
 // Get all orders
 app.get('/orders', async (req, res) => {
   try {
