@@ -13,11 +13,12 @@ const dbConfig = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT
+  port: process.env.DB_PORT,
+  decimalNumbers: true
 };
 
 app.get('/', async (req, res) => {
-  res.send('<h1>Api For Order Management</h1><p>You are in the root path</p>');  
+  res.send('<h1>Api For Order Management</h1><p>You are in the root path</p>');
 });
 
 // Get all orders
